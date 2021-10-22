@@ -1,0 +1,283 @@
+{
+	"info": {
+		"_postman_id": "298372f5-2ec9-45dd-b990-c6ac82fedc7e",
+		"name": "WH_Mercury_Lection4",
+		"description": "ДЗ по Лекции №4 (сайт webqa.mercdev.com).\r\n\r\nPostman:\r\nСоздать коллекцию из 3 запросов (авторизация, получение списка товаров, покупка), которая запускается в Runner-е\r\nВходные данные в виде csv (логин, параметры карты, товар и количество товара на покупку).\r\nНа выходе - проверяем, что\r\n- операция выполнена успешно\r\n- сумма рассчитана верно (должна учитываться скидка, в одной из итераций тест должен упасть из-за бага с неправильным расчетом скидки при большом количестве товара)\r\n- что в ответе указан email того пользователя, которым логинились\r\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authorization",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f39cf337-ef92-4cc4-8db8-17b51ba7d36b",
+						"exec": [
+							"pm.collectionVariables.set(\"authToken\", null);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "630fe013-f3b2-4f0d-bc33-be6d42995e10",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"pm.collectionVariables.set(\"authToken\", jsonData.authToken);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {  //Проверка: операция выполнена успешно\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"CheckTokeData\",function() {\r",
+							"    var authToken = pm.collectionVariables.get(\"authToken\");\r",
+							"   pm.expect(authToken).to.not.equal(null); \r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/user/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetProduct",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c2aa8082-df6f-4754-a64b-1f4dcb56ea47",
+						"exec": [
+							"pm.request.headers.add({\r",
+							"  key: 'Authorization',\r",
+							"  value: '{{authToken}}'\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "6fce37d1-f27d-49d2-a0a7-a1859cbf7eca",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { //Проверка: операция выполнена успешно\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"CheckProductList\", function() {\r",
+							"      pm.response.to.have.body({\"message\":\"\",\"products\":[{\"id\":\"1\",\"description\":\"Диаметр:16. Прутки/бухта:11.7м. Класс арматуры:А-I:ст3пс/сп\",\"name\":\"Арматура 16 11.7м А-I ст3пс/сп\",\"price\":100,\"iamgeUrl\":\"/uploads/images/16a474d19f.png\"},{\"id\":\"2\",\"description\":\"Диаметр:16. Прутки/бухта:11.7м. Класс арматуры:А-III-35ГС\",\"name\":\"Арматура 16 11.7м А-III 35ГС\",\"price\":200,\"iamgeUrl\":\"/uploads/images/b44a2838ab.png\"},{\"id\":\"3\",\"description\":\"Диаметр:8. Прутки/бухта:6м. Класс арматуры:А500-Сталь\",\"name\":\"Арматура 6 6м А500 34028-16\",\"price\":300,\"iamgeUrl\":\"/uploads/images/b44a2838ab.png\"},{\"id\":\"4\",\"description\":\"Диаметр:8. Прутки/бухта:бухта. Класс арматуры:А240-Сталь\",\"name\":\"Арматура 8 бухта А240 34028-16\",\"price\":400,\"iamgeUrl\":\"/uploads/images/f116dfcc0d.png\"},{\"id\":\"5\",\"description\":\"Диаметр:6. Прутки/бухта:бухта. Класс арматуры:А240-Сталь\",\"name\":\"Арматура 6 бухта А240 34028-16\",\"price\":500,\"iamgeUrl\":\"/uploads/images/b07c59adaa10.png\"}],\"sale\":0.1})      \r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/product/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"product",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createAndPay",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c8a9e1e5-6903-4bc2-8b59-804fde1f7382",
+						"exec": [
+							"pm.request.headers.add({\r",
+							"  key: 'Authorization',\r",
+							"  value: '{{authToken}}'\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "60f83b33-e5a9-4a6f-9090-29b165b92a15",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {  //Проверка: операция выполнена успешно\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"CheckEmail\", function() {   //Проверка: в ответе указан email того пользователя, которым логинились\r",
+							"pm.expect(pm.response.json().transaction.order.user.email) === data.email; //tests[\"Body contains userEmail\"] = responseBody.has(data.email)\r",
+							"})\r",
+							"\r",
+							"\r",
+							"var product = pm.response.json().transaction.order.products[0].product.id;\r",
+							"var productCost;\r",
+							"var quantity = pm.response.json().transaction.order.products[0].quantity;\r",
+							"\r",
+							"switch (product) {\r",
+							"  case '1':\r",
+							"  productCost = 100;\r",
+							"  break;\r",
+							"  case '2':\r",
+							"  productCost = 200;\r",
+							"  break;\r",
+							"  case '3':\r",
+							"  productCost = 300;\r",
+							"  break;\r",
+							"  case '4':\r",
+							"  productCost = 400;\r",
+							"  break;\r",
+							"  case '5':\r",
+							"  productCost = 500;\r",
+							"  break;\r",
+							"}\r",
+							"\r",
+							"var totalSum = productCost * quantity;\r",
+							"var discountedSum = totalSum * 0.9;\r",
+							"\r",
+							"pm.test(\"Check that the total cost calculated is right\", function(){  //Проверка:  сумма рассчитана верно (должна учитываться скидка, в одной из итераций тест должен упасть из-за бага с неправильным расчетом скидки при большом количестве товара)\r",
+							"if (quantity > 0 && quantity < 3){\r",
+							"    pm.expect(pm.response.json().transaction.order.totalSum).to.equal(totalSum);\r",
+							"} \r",
+							"else {\r",
+							"    pm.expect(pm.response.json().transaction.order.totalSum).to.equal(discountedSum);\r",
+							"}\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"card\": {\r\n        \"number\": \"{{number}}\",\r\n        \"date\": \"{{date}}\",\r\n        \"name\": \"{{name}}\",\r\n        \"cvv\": \"{{cvv}}\"\r\n    },\r\n    \"products\": [\r\n        {\r\n            \"id\": \"{{id}}\",\r\n            \"quantity\": \"{{quantity}}\"\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/order/createAndPay",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"order",
+						"createAndPay"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "621212de-0aff-48e2-a68f-f67b77221bf5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "12e37121-dfa0-4f9d-b144-0359b35d5082",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "e18cde08-9f0f-461f-82a1-235bad872819",
+			"key": "baseUrl",
+			"value": "https://webqa.mercdev.com"
+		},
+		{
+			"id": "592d1705-de7c-40cb-b986-66466fdc4fd0",
+			"key": "authToken",
+			"value": ""
+		}
+	],
+	"protocolProfileBehavior": {}
+}
